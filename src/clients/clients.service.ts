@@ -47,13 +47,7 @@ export class ClientsService {
 
   async create(data: any): Promise<Client> {
     try {
-      const existingClient = await this.clientModel.findOne({ phonenumber: data.phonenumber }).exec();
-      if (existingClient) {
-        throw new HttpException(
-          { message: 'Client with this phone number already exists' },
-          HttpStatus.CONFLICT,
-        );
-      }
+
       const createdClient = await this.clientModel.create(data);
       return createdClient;
     } catch (error) {

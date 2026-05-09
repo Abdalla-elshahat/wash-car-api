@@ -1,11 +1,11 @@
 
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { servicesService } from './services.service';
-
+import { FileInterceptor } from '@nestjs/platform-express';
 @Controller('services')
 export class servicesController {
 
-    constructor(private readonly servicesService:servicesService) { }
+    constructor(private readonly servicesService: servicesService) { }
     @Get()
     findAll() {
         return this.servicesService.findAllservices();
@@ -16,8 +16,18 @@ export class servicesController {
     }
 
     @Post()
-    create(@Body() body: any) {
-        return this.servicesService.createservices(body);
+    @UseInterceptors(FileInterceptor('image'))
+    async create(
+        @UploadedFile() file: Express.Multer.File,
+        @Body() body: any,
+    ) {
+
+        const serviceData = {
+            ...body,
+            image: file ? file.filename : null,
+        };
+
+        return this.servicesService.createservices(serviceData);
     }
 
     @Patch(':id')
@@ -30,4 +40,4 @@ export class servicesController {
     remove(@Param('id') id: string) {
         return this.servicesService.deleteservices(id);
     }
- }
+}

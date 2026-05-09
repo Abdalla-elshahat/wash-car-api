@@ -15,7 +15,12 @@ export class Order {
   @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: services.name, required: true })
   serviceId: string[];
 
-  
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Wash' })
+  washId: string;
+
+  @Prop()
+  address: string;
+
   @Prop({ required: true })
   cartype?: string;
 
@@ -27,13 +32,22 @@ export class Order {
 
   @Prop({
     required: true,
-    enum: ['pending', 'completed', 'cancelled'],
+    enum: ['Received', 'pending', 'completed', 'cancelled', 'delivered',],
     default: 'pending',
   })
-  status: 'pending' | 'completed' | 'cancelled';
+  status?: string;
 
-  @Prop()
-  paymentMethod?: 'cash' | 'credit' | 'vodafone_cash';
+  @Prop({
+    enum: ['cash', 'credit', 'vodafone_cash'],
+    default: 'cash',
+  })
+  paymentMethod: string;
+
+  @Prop({
+    enum: ['pending', 'paid', 'failed'],
+    default: 'pending',
+  })
+  paymentStatus: string;
 }
 
 export const orderSchema = SchemaFactory.createForClass(Order);

@@ -1,7 +1,7 @@
-// clients/schemas/client.schema.ts
+
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-export type servicesDocument =services & Document;
+export type servicesDocument = services & Document;
 
 @Schema()
 export class services {
@@ -14,15 +14,15 @@ export class services {
   @Prop({ required: true })
   price: number;
 
+  @Prop()
+  image?: string;
+
   @Prop({ default: 0 })
   discount: number;
 
-  @Prop()
-  imageUrl?: string; // صورة للخدمة لو هتعرضها في واجهة المستخدم
-
   @Prop({ default: true })
-  active: boolean; // لو الخدمة متاحة حاليًا أو لأ
-  
+  active: boolean;
+
   @Prop()
   orderDate: Date;
 

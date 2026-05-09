@@ -1,10 +1,12 @@
-// clients/clients.controller.ts
+import { AuthService } from './../auth/auth.service';
 import { Controller, Post, Body, Get, Param, Patch, Delete, Query } from '@nestjs/common';
 import { ClientsService } from './clients.service';
 
 @Controller('clients')
 export class ClientsController {
-    constructor(private readonly clientsService: ClientsService) { }
+    constructor(private readonly clientsService: ClientsService,
+    ) { }
+
     @Get()
     findAll(@Query('page') page: number, @Query('limit') limit: number) {
         return this.clientsService.findAll(
@@ -22,6 +24,7 @@ export class ClientsController {
     create(@Body() body: any) {
         return this.clientsService.create(body);
     }
+
 
     @Patch(':id')
     update(@Param('id') id: string, @Body() body: any) {
