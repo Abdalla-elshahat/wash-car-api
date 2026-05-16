@@ -1,53 +1,54 @@
-// src/orders/orders.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-import * as mongoose from 'mongoose';
-import { Client } from 'src/clients/clients.schema';
-import { services } from 'src/services/services.schema';
+import { Document, Schema as MongooseSchema } from 'mongoose';
 
-export type orderDocument = Order & Document;
+export type OrderDocument = Order & Document;
 
 @Schema({ timestamps: true })
 export class Order {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Client.name, required: true })
-  clientId: string;
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
+  clientId?: MongooseSchema.Types.ObjectId;
 
-  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: services.name, required: true })
-  serviceId: string[];
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Laundry', required: true })
+  laundryId?: MongooseSchema.Types.ObjectId;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Wash' })
-  washId: string;
+  // @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Car', required: true })
+  // carId?: MongooseSchema.Types.ObjectId;
 
-  @Prop()
-  address: string;
-
-  @Prop({ required: true })
-  cartype?: string;
-
-  @Prop({ required: true })
-  price: number;
-
-  @Prop({ default: new Date(), required: false })
-  orderDate: Date;
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'services', required: true })
+  serviceId?: MongooseSchema.Types.ObjectId;
 
   @Prop({
-    required: true,
-    enum: ['Received', 'pending', 'completed', 'cancelled', 'delivered',],
+    enum: ['pending', 'accepted', 'in_progress', 'completed', 'cancelled'],
     default: 'pending',
   })
   status?: string;
 
-  @Prop({
-    enum: ['cash', 'credit', 'vodafone_cash'],
-    default: 'cash',
-  })
-  paymentMethod: string;
+  @Prop({ type: Number })
+  originalPrice?: number;
+
+  @Prop({ type: Number, default: 0 })
+  discountAmount?: number;
+
+  @Prop({ type: Number })
+  totalAmount?: number;
+
+  @Prop({ type: Number })
+  platformFee?: number;
+
+  @Prop({ type: Number })
+  laundryEarning?: number;
 
   @Prop({
-    enum: ['pending', 'paid', 'failed'],
+    enum: ['pending', 'paid', 'failed', 'refunded'],
     default: 'pending',
   })
-  paymentStatus: string;
+  paymentStatus?: string;
+
+  @Prop()
+  notes?: string;
+
+  @Prop({ type: Date })
+  deletedAt?: Date;
 }
 
-export const orderSchema = SchemaFactory.createForClass(Order);
+export const OrderSchema = SchemaFactory.createForClass(Order);

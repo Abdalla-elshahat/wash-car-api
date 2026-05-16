@@ -1,11 +1,17 @@
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema } from 'mongoose';
 export type servicesDocument = services & Document;
 
 @Schema()
 export class services {
-  @Prop({ required: true })
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
+  ownerId: MongooseSchema.Types.ObjectId;
+
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Laundry', required: true })
+  laundryId: MongooseSchema.Types.ObjectId;
+
+  @Prop({ required: true, unique: false })
   title: string;
 
   @Prop({ required: true })
@@ -17,18 +23,9 @@ export class services {
   @Prop()
   image?: string;
 
-  @Prop({ default: 0 })
-  discount: number;
-
   @Prop({ default: true })
   active: boolean;
-
-  @Prop()
-  orderDate: Date;
-
-  getpriceafterdiscount(price: number, discount: number): number {
-    return price - (price * discount) / 100;
-  }
 }
 
 export const servicesSchema = SchemaFactory.createForClass(services);
+servicesSchema.index({ title: 1, laundryId: 1 }, { unique: true });

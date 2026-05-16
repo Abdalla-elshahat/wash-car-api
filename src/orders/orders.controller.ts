@@ -1,13 +1,12 @@
-
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req } from '@nestjs/common';
 import { orderService } from './orders.service';
 
 @Controller('orders')
 export class OrdersController {
 
     constructor(private readonly ordersService: orderService) { }
-    @Get()
-    async findAll(@Query() query: any) {
+    @Get("laundry/:laundryId")
+    async getOrdersbyownerId(@Param('laundryId') laundryId: string, @Query() query: any, @Req() req: any) {
         const page = parseInt(query.page) || 1;
         const limit = parseInt(query.limit) || 10;
         const skip = (page - 1) * limit;
@@ -18,9 +17,10 @@ export class OrdersController {
             clientId: query.clientId,
             serviceId: query.serviceId,
             cartype: query.cartype,
+            date: query.date,
         };
 
-        const [orders, total] = await this.ordersService.findOrdersByFilters(filters, skip, limit);
+        const [orders, total] = await this.ordersService.getOrdersbyownerId(laundryId, filters, skip, limit, req.user.id);
 
         return {
             data: orders,
@@ -30,35 +30,42 @@ export class OrdersController {
         };
     }
 
-    @Get(':id')
-    findById(@Param('id') id: string) {
-        return this.ordersService.findorderById(id);
-    }
+    @Get('client')
+    async findByClient(@Query() query: any, @Req() req: any) {
+        const page = parseInt(query.page) || 1;
+        const limit = parseInt(query.limit) || 10;
+        const skip = (page - 1) * limit;
 
-    @Get('orderstoday')
-    findordertoday() {
-        return this.ordersService.findordertoday();
+        const [orders, total] = await this.ordersService.getOrdersByClient(req.user.id, skip, limit);
+
+        return {
+            data: orders,
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total,
+        };
     }
 
     @Post()
-    create(@Body() body: any) {
-        return this.ordersService.createorder(body);
+    create(@Body() body: any, @Req() req: any) {
+        return this.ordersService.createorder(body, req.user.id);
     }
 
     @Patch(':id')
-    update(@Param('id') id: string, @Body() body: any) {
-        return this.ordersService.updateorder(id, body
-        );
+    update(@Param('id') id: string, @Body() body: any, @Req() req: any) {
+        const clientId = req.user.id;
+        return this.ordersService.updateorder(id, body, clientId);
     }
 
     @Patch('status/:id')
-    updatestatus(@Param('id') id: string, @Body() body: any) {
-        return this.ordersService.updateorderstatus(id, body
-        );
+    updatestatus(@Param('id') id: string, @Body() body: any, @Req() req: any) {
+        const ownerId = req.user?.id;
+        return this.ordersService.updateorderstatus(id, body, ownerId);
     }
 
-    @Delete(':id/client/:clientId')
-    remove(@Param('id') id: string, @Param() clientId: string) {
-        return this.ordersService.deleteorder(id, clientId);
+    @Delete(':id')
+    cancelorder(@Param('id') id: string, @Req() req: any) {
+        const clientId = req.user.id;
+        return this.ordersService.cancelorder(id, clientId);
     }
 }

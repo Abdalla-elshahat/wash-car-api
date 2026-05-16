@@ -8,10 +8,10 @@ export class AuthController {
 
   @Post('/signup')
   async signup(
-    @Body() body: { username: string; email: string; password: string, role: string },
+    @Body() body: { fullname: string; email: string; phone: string; password: string, role: string },
     @Res() res: Response,
   ) {
-    const result = await this.authService.Signup(body.username, body.email, body.password, body.role || 'client');
+    const result = await this.authService.Signup(body.fullname, body.email, body.phone, body.password, body.role || 'client');
     res.cookie('token', result.token);
     return res.status(HttpStatus.CREATED).json({ data: result });
   }
